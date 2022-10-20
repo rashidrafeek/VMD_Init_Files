@@ -1,0 +1,6 @@
+[submodule "crystallography"]
+	path = crystallography
+	url = git@github.com:danmichaelo/crystallography.git
+[submodule "statusindicator"]
+	path = statusindicator
+	url = git@github.com:danmichaelo/statusindicator.git
