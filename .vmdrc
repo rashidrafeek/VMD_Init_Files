@@ -1,5 +1,8 @@
 # Plugin path
-set auto_path [concat $auto_path "$env(HOME)/Apps/vmd_plugins"] ;
+# Trick to get original path of .vmdrc link
+# See: https://stackoverflow.com/a/69748357/11213215
+set vmdrc_path [file dirname [file normalize "$env(HOME)/.vmdrc/_____"]]
+set auto_path [concat $auto_path [file dirname $vmdrc_path]]
 
 package require statusindicator
 package require pbctools
