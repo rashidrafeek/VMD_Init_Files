@@ -4,8 +4,9 @@
 set vmdrc_path [file dirname [file normalize "$env(HOME)/.vmdrc/_____"]]
 set auto_path [concat $auto_path [file dirname $vmdrc_path]]
 
-package require statusindicator
 package require pbctools
+package require topotools
+namespace import ::TopoTools::*
 
 # Plugins
 vmd_install_extension crystallography_gui cryst_tk "Crystallography"
@@ -91,6 +92,11 @@ after idle {
   user add key c {::Crystallography::GUI::set_view_from_preset c}
   # replace c key functionality with C
   user add key C {mouse mode pick 1}
+  # Arrow keys to translate
+  user add key Left {translate by -0.02 0 0}
+  user add key Right {translate by 0.02 0 0}
+  user add key Up {translate by 0 0.02 0}
+  user add key Down {translate by 0 -0.02 0}
 
   # define a new, very transparent material 'Glass'
   material add Glass
