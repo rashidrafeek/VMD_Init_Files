@@ -1,0 +1,102 @@
+# Plugin path
+set auto_path [concat $auto_path "$env(HOME)/Apps/vmd_plugins"] ;
+
+package require statusindicator
+package require pbctools
+
+# Plugins
+vmd_install_extension crystallography_gui cryst_tk "Crystallography"
+vmd_install_extension statusIndicator statusIndicator_tk "Status indicator"
+
+proc reset_viz {molid} {
+  # operate only on existing molecules
+  if {[lsearch [molinfo list] $molid] >= 0} {
+    # delete all representations
+    set numrep [molinfo $molid get numreps]
+    for {set i 0} {$i < $numrep} {incr i} {
+      mol delrep $i $molid
+    }
+    # add new representations
+    mol color Type  # color each atom according to its element
+    set name [molinfo $molid get name]
+
+    # Add spheres
+    mol selection all
+    mol representation VDW 0.25
+    mol addrep $molid
+
+    # Add dynamic bonds
+    # C,N,O bonds
+    mol selection element C or element O or element N
+    mol representation DynamicBonds 1.7 0.1
+    mol addrep $molid
+    # C,H bonds
+    mol selection element C or element H
+    mol representation DynamicBonds 1.25 0.1
+    mol addrep $molid
+    # N,H bonds
+    mol selection element N or element H
+    mol representation DynamicBonds 1.25 0.1
+    mol addrep $molid
+    # O,H bonds
+    mol selection element O or element H
+    mol representation DynamicBonds 1.2 0.1
+    mol addrep $molid
+
+    # add the unit cell
+    pbc box -color gray -style dashed -width 2
+    ::Crystallography::read_pbc; # Required for a,b,c hot keys to work
+  }
+}
+
+proc reset_viz_proxy {args} {
+  foreach {fname molid rw} $args {}
+  eval "after idle {reset_viz $molid}"
+}
+
+trace variable vmd_initialize_structure w reset_viz_proxy
+
+#color Element C black  # uncomment to have carbon atoms in black
+
+after idle { 
+    reset_viz 0
+}
+
+after idle {
+  color Display Background silver
+  display projection orthographic
+
+  # Better colors: See: https://sites.google.com/site/akohlmey/random-hacks/vmd-init-script?authuser=0#h.2gtpcoy2zbmf
+  color change rgb  0 0.1 0.2 0.7 ;# blue
+  color change rgb  1 0.7 0.2 0.1 ;# red
+  color change rgb  3 0.7 0.4 0.0 ;# orange
+  color change rgb  4 0.8 0.7 0.1 ;# yellow
+  color change rgb  7 0.1 0.7 0.2 ;# green
+  color change rgb 10 0.1 0.7 0.8 ;# cyan
+  color change rgb 11 0.6 0.1 0.6 ;# purple
+
+  # Hotkeys
+  # From Axel Kohlmayer's site
+  user add key o {display projection orthographic}
+  user add key p {display projection perspective}
+  user add key d { if {[display get rendermode] != "Normal" } {display rendermode Normal} {display rendermode GLSL}}
+  user add key D { if {[display get depthcue] != "on" } {display depthcue on} {display depthcue off}}
+  # Mine
+  # Crystallography
+  user add key a {::Crystallography::GUI::set_view_from_preset a}
+  user add key b {::Crystallography::GUI::set_view_from_preset b}
+  user add key c {::Crystallography::GUI::set_view_from_preset c}
+  # replace c key functionality with C
+  user add key C {mouse mode pick 1}
+
+  # define a new, very transparent material 'Glass'
+  material add Glass
+  material change ambient Glass 0.00
+  material change specular Glass 0.50
+  material change diffuse Glass 0.65
+  material change shininess Glass 0.53
+  material change opacity Glass 0.15
+}
+
+
+menu main on
