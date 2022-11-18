@@ -48,7 +48,7 @@ proc reset_viz {molid} {
     mol addrep $molid
 
     # add the unit cell
-    pbc box -color gray -style dashed -width 2
+    pbc box -color silver -style dashed -width 2
     ::Crystallography::read_pbc; # Required for a,b,c hot keys to work
   }
 }
@@ -58,16 +58,14 @@ proc reset_viz_proxy {args} {
   eval "after idle {reset_viz $molid}"
 }
 
-trace variable vmd_initialize_structure w reset_viz_proxy
+# trace variable vmd_initialize_structure w reset_viz_proxy
 
-#color Element C black  # uncomment to have carbon atoms in black
-
-after idle { 
-    reset_viz 0
-}
+# after idle { 
+#     reset_viz 0
+# }
 
 after idle {
-  color Display Background silver
+  color Display Background gray
   display projection orthographic
 
   # Better colors: See: https://sites.google.com/site/akohlmey/random-hacks/vmd-init-script?authuser=0#h.2gtpcoy2zbmf
@@ -97,15 +95,32 @@ after idle {
   user add key Right {translate by 0.02 0 0}
   user add key Up {translate by 0 0.02 0}
   user add key Down {translate by 0 -0.02 0}
-
-  # define a new, very transparent material 'Glass'
-  material add Glass
-  material change ambient Glass 0.00
-  material change specular Glass 0.50
-  material change diffuse Glass 0.65
-  material change shininess Glass 0.53
-  material change opacity Glass 0.15
 }
 
+
+# VESTA Colors for CHNO
+proc vmdrestoremycolors {} {
+  set colorcmds {
+    {color Display {Background} white}
+    {color Type {C} orange2}
+    {color Element {C} orange2}
+    {color Type {H} violet2}
+    {color Element {H} violet2}
+    {color Type {N} blue2}
+    {color Element {N} blue2}
+    {color Type {O} red2}
+    {color Element {O} red2}
+  }
+  foreach colcmd $colorcmds {
+    set val [catch {eval $colcmd}]
+  }
+  color change rgb 23 0.5799999833106995 0.6600000262260437 1.0
+  color change rgb 26 1.0 0.800000011920929 0.800000011920929
+  color change rgb 29 1.0 0.0 0.0
+  color change rgb 31 0.3199999928474426 0.1599999964237213 0.0
+}
+after idle {
+    vmdrestoremycolors
+}
 
 menu main on
