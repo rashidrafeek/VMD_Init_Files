@@ -26,7 +26,7 @@ proc reset_viz {molid} {
 
     # Add spheres
     mol selection all
-    mol representation VDW 0.25
+    mol representation VDW 0.2
     mol addrep $molid
 
     # Add dynamic bonds
@@ -64,6 +64,28 @@ proc reset_viz_proxy {args} {
 #     reset_viz 0
 # }
 
+# VESTA Colors for CHNO
+proc usevestacolors {} {
+  set colorcmds {
+    {color Display {Background} white}
+    {color Type {C} orange2}
+    {color Element {C} orange2}
+    {color Type {H} violet2}
+    {color Element {H} violet2}
+    {color Type {N} blue2}
+    {color Element {N} blue2}
+    {color Type {O} red2}
+    {color Element {O} red2}
+  }
+  foreach colcmd $colorcmds {
+    set val [catch {eval $colcmd}]
+  }
+  color change rgb 23 0.5799999833106995 0.6600000262260437 1.0
+  color change rgb 26 1.0 0.800000011920929 0.800000011920929
+  color change rgb 29 1.0 0.0 0.0
+  color change rgb 31 0.3199999928474426 0.1599999964237213 0.0
+}
+
 after idle {
   color Display Background gray
   display projection orthographic
@@ -88,6 +110,10 @@ after idle {
   user add key a {::Crystallography::GUI::set_view_from_preset a}
   user add key b {::Crystallography::GUI::set_view_from_preset b}
   user add key c {::Crystallography::GUI::set_view_from_preset c}
+  user add key Alt-a {cryst_axes on -position lower-left}
+  user add key Alt-A {cryst_axes off}
+  # Remove default axis
+  user add key Alt-C {axes location Off}
   # replace c key functionality with C
   user add key C {mouse mode pick 1}
   # Arrow keys to translate
@@ -95,32 +121,7 @@ after idle {
   user add key Right {translate by 0.02 0 0}
   user add key Up {translate by 0 0.02 0}
   user add key Down {translate by 0 -0.02 0}
-}
-
-
-# VESTA Colors for CHNO
-proc vmdrestoremycolors {} {
-  set colorcmds {
-    {color Display {Background} white}
-    {color Type {C} orange2}
-    {color Element {C} orange2}
-    {color Type {H} violet2}
-    {color Element {H} violet2}
-    {color Type {N} blue2}
-    {color Element {N} blue2}
-    {color Type {O} red2}
-    {color Element {O} red2}
-  }
-  foreach colcmd $colorcmds {
-    set val [catch {eval $colcmd}]
-  }
-  color change rgb 23 0.5799999833106995 0.6600000262260437 1.0
-  color change rgb 26 1.0 0.800000011920929 0.800000011920929
-  color change rgb 29 1.0 0.0 0.0
-  color change rgb 31 0.3199999928474426 0.1599999964237213 0.0
-}
-after idle {
-    vmdrestoremycolors
+  user add key Alt-v {usevestacolors}
 }
 
 menu main on
